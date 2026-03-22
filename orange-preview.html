@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#FF6B00"/>
+<title>Orange — Meet. Move. Connect.</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --orange:#FF6B00;--orange-light:#FF8C3A;--orange-shadow:rgba(255,107,0,0.35);
+  --bg:#FFFFFF;--surface:#F6F5F3;--surface2:#EDECE9;
+  --text:#0F0F0E;--muted:#888880;--border:#E8E7E4;
+  --live:#22C55E;--error:#EF4444;
+  --font-display:'Plus Jakarta Sans',sans-serif;--font-body:'Inter',sans-serif;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;--r-full:999px;
+}
+html,body{height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-family:var(--font-body)}
+#phone{
+  width:100%;max-width:390px;height:100vh;max-height:844px;
+  background:var(--bg);position:relative;overflow:hidden;
+  border-radius:0;box-shadow:0 32px 80px rgba(0,0,0,0.6);
+  display:flex;flex-direction:column;
+}
+@media(min-width:420px){#phone{border-radius:44px;height:844px}}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s ease;opacity:1;transform:translateX(0)}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateX(100%)}
+.screen.slide-left{transform:translateX(-30%);opacity:0;pointer-events:none}
+
+/* ── STATUS BAR ── */
+.status-bar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text)}
+.status-bar.white{color:#fff}
+.status-icons{display:flex;align-items:center;gap:5px;font-size:11px}
+
+/* ── ONBOARDING ── */
+#s-onboard{background:#fff}
+.onboard-slides{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 36px;opacity:0;transition:opacity .5s ease,transform .5s ease;transform:translateX(60px)}
+.slide.active{opacity:1;transform:translateX(0)}
+.slide.prev{opacity:0;transform:translateX(-60px)}
+.slide-emoji{font-size:80px;margin-bottom:32px;filter:drop-shadow(0 8px 24px rgba(255,107,0,0.2))}
+.slide-title{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text);text-align:center;line-height:1.25;margin-bottom:14px}
+.slide-sub{font-size:15px;color:var(--muted);text-align:center;line-height:1.65}
+.slide-bg{position:absolute;inset:0;opacity:.05;background:radial-gradient(circle at 50% 30%,var(--orange),transparent 70%)}
+.onboard-bottom{padding:0 24px 40px;flex-shrink:0}
+.dots{display:flex;justify-content:center;gap:6px;margin-bottom:28px}
+.dot{height:6px;border-radius:var(--r-full);background:var(--border);transition:all .35s ease}
+.dot.active{width:24px;background:var(--orange)}
+.dot:not(.active){width:6px}
+.btn-primary{width:100%;height:56px;background:var(--orange);border:none;border-radius:var(--r-xl);font-family:var(--font-display);font-size:16px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 24px var(--orange-shadow);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.btn-primary:active{transform:scale(0.97);box-shadow:0 4px 12px var(--orange-shadow)}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent)}
+.btn-ghost{width:100%;padding:14px;background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;margin-top:8px}
+
+/* ── AUTH ── */
+#s-auth .auth-header{padding:32px 24px 24px;text-align:center}
+.auth-logo{font-size:52px;display:block;margin-bottom:16px}
+.auth-title{font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px}
+.auth-sub{font-size:14px;color:var(--muted);line-height:1.5}
+.auth-toggle{display:flex;background:var(--surface);border-radius:var(--r-lg);padding:3px;margin:0 24px 24px}
+.toggle-btn{flex:1;padding:10px;border:none;background:none;border-radius:var(--r-md);font-family:var(--font-display);font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s}
+.toggle-btn.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.auth-form{padding:0 24px;display:flex;flex-direction:column;gap:14px}
+.field-label{font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;display:block;letter-spacing:.3px}
+.field-input{width:100%;height:52px;background:var(--surface);border:none;border-radius:var(--r-lg);padding:0 16px;font-size:15px;color:var(--text);font-family:var(--font-body);outline:none;transition:box-shadow .2s}
+.field-input:focus{box-shadow:0 0 0 2px var(--orange)}
+
+/* ── HOME / MAP ── */
+#s-home{background:#f0ede8}
+.map-area{flex:1;position:relative;overflow:hidden;background:linear-gradient(160deg,#e8e4dc 0%,#d4cfc5 100%)}
+.map-grid{position:absolute;inset:0;opacity:.3;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px}
+.map-roads{position:absolute;inset:0}
+.map-road{position:absolute;background:rgba(255,255,255,0.7);border-radius:4px}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translate(-50%,-50%);transition:transform .2s}
+.map-pin:active{transform:translate(-50%,-50%) scale(1.15)}
+.pin-circle{width:44px;height:44px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px var(--orange-shadow)}
+.pin-circle.live{animation:pin-pulse 2s ease-in-out infinite}
+.pin-shadow{width:10px;height:4px;background:rgba(0,0,0,0.2);border-radius:50%;margin-top:2px}
+@keyframes pin-pulse{0%,100%{box-shadow:0 4px 16px var(--orange-shadow),0 0 0 0 rgba(255,107,0,.4)}50%{box-shadow:0 4px 16px var(--orange-shadow),0 0 0 12px rgba(255,107,0,0)}}
+.user-dot{position:absolute;top:55%;left:48%;width:18px;height:18px;transform:translate(-50%,-50%)}
+.user-dot-inner{width:14px;height:14px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 2px 8px rgba(59,130,246,0.5);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.user-dot-ring{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,0.15);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:ring 2s ease-in-out infinite}
+@keyframes ring{0%,100%{transform:translate(-50%,-50%) scale(.8);opacity:.8}50%{transform:translate(-50%,-50%) scale(1.2);opacity:.3}}
+.map-topbar{position:absolute;top:0;left:0;right:0;z-index:10;padding:12px}
+.search-row{display:flex;gap:8px}
+.search-box{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-radius:var(--r-xl);padding:0 14px;height:46px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.search-box input{flex:1;border:none;background:none;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none}
+.icon-btn{width:46px;height:46px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-radius:var(--r-xl);border:none;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.ai-fab{position:absolute;bottom:80px;right:16px;width:54px;height:54px;border-radius:var(--r-xl);background:var(--orange);border:none;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 8px 24px var(--orange-shadow);animation:float 3s ease-in-out infinite;z-index:10}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{height:64px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:around;flex-shrink:0;padding:0 4px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;padding:8px 0;border-radius:var(--r-md);transition:all .2s}
+.nav-emoji{font-size:20px;opacity:.45;transition:opacity .2s,transform .2s}
+.nav-label{font-family:var(--font-display);font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;transition:color .2s}
+.nav-item.active .nav-emoji{opacity:1;transform:scale(1.05)}
+.nav-item.active .nav-label{color:var(--orange)}
+.nav-create{width:46px;height:46px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin-top:-16px;box-shadow:0 6px 20px var(--orange-shadow);border:none;cursor:pointer;flex-shrink:0}
+
+/* ── ACTIVITY SHEET ── */
+.bottom-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:28px 28px 0 0;box-shadow:0 -8px 48px rgba(0,0,0,0.15);transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:20;max-height:70%}
+.bottom-sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:var(--r-full);margin:12px auto 0}
+.sheet-content{padding:16px 20px 32px;overflow-y:auto;max-height:calc(70vh - 50px)}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.badge{padding:4px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;font-family:var(--font-display)}
+.badge-cat{background:#FFF3E8;color:var(--orange)}
+.badge-live{background:#DCFCE7;color:var(--live);display:flex;align-items:center;gap:4px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--live)}
+.sheet-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
+.sheet-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.social-row{display:flex;align-items:center;gap:20px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px}
+.social-item{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;background:none;border:none}
+.info-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.info-icon{width:34px;height:34px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.info-text{font-size:14px;color:var(--text);font-weight:500}
+.sheet-actions{display:flex;gap:10px;margin-top:18px}
+.btn-join{flex:1;height:52px;background:var(--orange);border:none;border-radius:var(--r-xl);font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 6px 20px var(--orange-shadow)}
+.btn-chat{flex:1;height:52px;background:var(--orange);border:none;border-radius:var(--r-xl);font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 6px 20px var(--orange-shadow)}
+.btn-leave{flex:1;height:52px;background:none;border:1px solid var(--border);border-radius:var(--r-xl);font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);cursor:pointer}
+.sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:15;opacity:0;pointer-events:none;transition:opacity .35s}
+.sheet-overlay.show{opacity:1;pointer-events:auto}
+
+/* ── EXPLORE ── */
+#s-explore{overflow:hidden}
+.page-header{padding:52px 20px 12px;flex-shrink:0}
+.page-title{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--text)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:var(--r-xl);padding:0 14px;height:46px;margin:0 20px 12px}
+.search-bar input{flex:1;border:none;background:none;font-size:14px;color:var(--text);outline:none}
+.cat-scroll{display:flex;gap:8px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-chip{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r-lg);background:var(--surface);border:none;font-family:var(--font-display);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s}
+.cat-chip.active{background:var(--orange);color:#fff}
+.activity-list{flex:1;overflow-y:auto;padding:0 20px 100px}
+.activity-card{background:#fff;border-radius:var(--r-xl);padding:16px;margin-bottom:10px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,0.04);cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:12px}
+.activity-card:active{transform:scale(0.98);box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.card-emoji-wrap{width:48px;height:48px;border-radius:14px;background:#FFF3E8;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.card-info{flex:1;min-width:0}
+.card-title{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.card-badge{padding:3px 9px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:var(--surface);color:var(--muted);white-space:nowrap;font-family:var(--font-display)}
+.card-badge.live-badge{background:#DCFCE7;color:var(--live)}
+
+/* ── CREATE ── */
+#s-create{overflow-y:auto}
+.create-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px}
+.back-btn{width:38px;height:38px;border-radius:12px;background:var(--surface);border:none;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
+.create-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text)}
+.create-form{padding:0 20px 100px;display:flex;flex-direction:column;gap:16px}
+.form-label{font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text);display:block;margin-bottom:6px;letter-spacing:.3px}
+.form-input{width:100%;height:50px;background:var(--surface);border:none;border-radius:var(--r-lg);padding:0 14px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;transition:box-shadow .2s}
+.form-input:focus{box-shadow:0 0 0 2px var(--orange)}
+.form-textarea{width:100%;height:90px;background:var(--surface);border:none;border-radius:var(--r-lg);padding:12px 14px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;resize:none;transition:box-shadow .2s}
+.form-textarea:focus{box-shadow:0 0 0 2px var(--orange)}
+.cat-grid{display:flex;flex-wrap:wrap;gap:6px}
+
+/* ── CHAT ── */
+#s-chat-list{overflow:hidden}
+.chat-list{flex:1;overflow-y:auto;padding:0 20px 100px}
+.chat-item{display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border-radius:var(--r-xl);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:transform .15s}
+.chat-item:active{transform:scale(0.98)}
+.chat-avatar{width:50px;height:50px;border-radius:16px;background:#FFF3E8;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.chat-name{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text)}
+.chat-preview{font-size:12px;color:var(--muted);margin-top:2px}
+.chat-time{font-size:11px;color:var(--muted);margin-left:auto;flex-shrink:0}
+
+/* ── PROFILE ── */
+#s-profile{overflow-y:auto}
+.profile-band{height:120px;background:var(--orange);position:relative;flex-shrink:0}
+.profile-band::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent)}
+.profile-body{padding:0 20px 100px}
+.avatar-wrap{display:flex;flex-direction:column;align-items:center;margin-top:-44px;margin-bottom:20px}
+.avatar-img{width:88px;height:88px;border-radius:22px;background:var(--orange);border:4px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;font-family:var(--font-display)}
+.camera-badge{width:28px;height:28px;border-radius:9px;background:var(--orange);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:-12px;margin-left:60px;cursor:pointer}
+.profile-name{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text);margin-top:8px}
+.profile-email{font-size:13px;color:var(--muted);margin-top:2px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.stat-box{background:var(--surface);border-radius:var(--r-lg);padding:12px 8px;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--orange)}
+.stat-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.section-label{font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:.3px}
+.bio-box{background:var(--surface);border-radius:var(--r-xl);padding:14px;margin-bottom:18px;font-size:14px;color:var(--muted);line-height:1.6}
+.interest-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.interest-chip{padding:6px 12px;border-radius:var(--r-full);font-family:var(--font-display);font-size:12px;font-weight:600}
+.interest-chip.active{background:var(--orange);color:#fff}
+.interest-chip:not(.active){background:var(--surface);color:var(--muted)}
+.btn-outline{width:100%;height:50px;background:none;border:1.5px solid var(--border);border-radius:var(--r-xl);font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);cursor:pointer}
+
+/* ── AI SCREEN ── */
+#s-ai{overflow:hidden}
+.ai-header{padding:52px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ai-icon{width:40px;height:40px;border-radius:12px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:18px}
+.ai-name{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text)}
+.ai-sub{font-size:12px;color:var(--muted)}
+.ai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ai-empty{display:flex;flex-direction:column;align-items:center;padding:24px 24px 8px;text-align:center}
+.ai-big-icon{width:64px;height:64px;border-radius:20px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px}
+.ai-empty-title{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
+.ai-empty-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.suggestion-btn{width:100%;padding:12px 14px;background:var(--surface);border:none;border-radius:var(--r-lg);text-align:left;font-size:14px;color:var(--text);font-family:var(--font-body);cursor:pointer;margin-bottom:6px}
+.msg-row{display:flex;gap:8px;align-items:flex-end}
+.msg-row.me{justify-content:flex-end}
+.msg-avatar{width:28px;height:28px;border-radius:9px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.bubble{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6}
+.bubble.bot{background:var(--surface);color:var(--text);border-bottom-left-radius:4px}
+.bubble.me{background:var(--orange);color:#fff;border-bottom-right-radius:4px}
+.typing{display:flex;gap:4px;padding:12px 16px;align-items:center}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce .9s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.ai-input-bar{display:flex;gap:8px;padding:10px 16px 20px;border-top:1px solid var(--border);flex-shrink:0}
+.ai-input{flex:1;height:46px;background:var(--surface);border:none;border-radius:var(--r-xl);padding:0 14px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none}
+.send-btn{width:46px;height:46px;border-radius:23px;background:var(--orange);border:none;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 12px var(--orange-shadow);flex-shrink:0}
+.send-btn:disabled{opacity:.4}
+
+/* Scrollbar hide */
+*::-webkit-scrollbar{display:none}
+*{scrollbar-width:none}
+</style>
+</head>
+<body>
+<div id="phone">
+
+<!-- ══════════════ ONBOARDING ══════════════ -->
+<div class="screen" id="s-onboard">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="onboard-slides" id="slides">
+    <div class="slide active" id="slide-0"><div class="slide-bg"></div><div class="slide-emoji">🗺️</div><h1 class="slide-title">See what's happening near you</h1><p class="slide-sub">Discover activities, events, and people within your neighbourhood — all on a live map.</p></div>
+    <div class="slide" id="slide-1"><div class="slide-bg"></div><div class="slide-emoji">🤝</div><h1 class="slide-title">Meet people who share your vibe</h1><p class="slide-sub">Join sports, food runs, study groups, gaming sessions and more with people nearby.</p></div>
+    <div class="slide" id="slide-2"><div class="slide-bg"></div><div class="slide-emoji">🟠</div><h1 class="slide-title">Meet. Move. Connect.</h1><p class="slide-sub">Orange is your local social layer. Real people, real activities, real connections.</p></div>
+  </div>
+  <div class="onboard-bottom">
+    <div class="dots"><div class="dot active" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div></div>
+    <button class="btn-primary" id="onboard-next-btn" onclick="onboardNext()">Next</button>
+    <button class="btn-ghost" onclick="goTo('s-auth')">Skip</button>
+  </div>
+</div>
+
+<!-- ══════════════ AUTH ══════════════ -->
+<div class="screen hidden" id="s-auth">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="auth-header"><span class="auth-logo">🟠</span><h1 class="auth-title">Welcome to Orange</h1><p class="auth-sub">Sign in to discover activities near you</p></div>
+  <div class="auth-toggle"><button class="toggle-btn active" id="tab-signin" onclick="authTab('signin')">Sign in</button><button class="toggle-btn" id="tab-signup" onclick="authTab('signup')">Sign up</button></div>
+  <div class="auth-form">
+    <div id="name-field" style="display:none"><label class="field-label">YOUR NAME</label><input class="field-input" placeholder="e.g. Karthik" type="text"/></div>
+    <div><label class="field-label">EMAIL</label><input class="field-input" placeholder="you@example.com" type="email"/></div>
+    <div><label class="field-label">PASSWORD</label><input class="field-input" placeholder="At least 6 characters" type="password"/></div>
+    <button class="btn-primary" id="auth-btn" onclick="goTo('s-home')" style="margin-top:4px">Sign in →</button>
+  </div>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div class="screen hidden" id="s-home">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="map-area">
+    <div class="map-grid"></div>
+    <svg class="map-roads" viewBox="0 0 390 600" preserveAspectRatio="none">
+      <rect x="0" y="180" width="390" height="12" fill="rgba(255,255,255,0.75)" rx="2"/>
+      <rect x="0" y="340" width="390" height="10" fill="rgba(255,255,255,0.65)" rx="2"/>
+      <rect x="80" y="0" width="10" height="600" fill="rgba(255,255,255,0.65)" rx="2"/>
+      <rect x="240" y="0" width="12" height="600" fill="rgba(255,255,255,0.75)" rx="2"/>
+      <rect x="0" y="480" width="390" height="8" fill="rgba(255,255,255,0.5)" rx="2"/>
+      <rect x="150" y="0" width="8" height="600" fill="rgba(255,255,255,0.45)" rx="2"/>
+      <rect x="320" y="0" width="8" height="600" fill="rgba(255,255,255,0.45)" rx="2"/>
+    </svg>
+    <!-- Activity pins -->
+    <div class="map-pin" style="top:28%;left:38%" onclick="openSheet('Football Game','sports','⚽','Evening football at the grounds','🕐 Today 6:00 PM','📍 Besant Nagar Beach')"><div class="pin-circle live">⚽</div><div class="pin-shadow"></div></div>
+    <div class="map-pin" style="top:42%;left:65%" onclick="openSheet('Study Group','study','📚','CAT exam prep together','🕐 Today 5:00 PM','📍 British Council Library')"><div class="pin-circle">📚</div><div class="pin-shadow"></div></div>
+    <div class="map-pin" style="top:60%;left:30%" onclick="openSheet('Food Walk','food','🍕','Street food tour','🕐 Sat 7:00 PM','📍 Pondy Bazaar')"><div class="pin-circle">🍕</div><div class="pin-shadow"></div></div>
+    <div class="map-pin" style="top:35%;left:78%" onclick="openSheet('Morning Run','fitness','💪','5K run at the park','🕐 Sun 6:00 AM','📍 Nungambakkam Park')"><div class="pin-circle">💪</div><div class="pin-shadow"></div></div>
+    <div class="map-pin" style="top:70%;left:62%" onclick="openSheet('Gaming Night','gaming','🎮','Console gaming session','🕐 Sat 8:00 PM','📍 Velachery')"><div class="pin-circle">🎮</div><div class="pin-shadow"></div></div>
+    <!-- User location -->
+    <div class="user-dot"><div class="user-dot-ring"></div><div class="user-dot-inner"></div></div>
+    <!-- Top bar -->
+    <div class="map-topbar">
+      <div class="search-row">
+        <div class="search-box"><span>🔍</span><input placeholder="Search activities nearby..."/></div>
+        <button class="icon-btn">🔔</button>
+      </div>
+    </div>
+    <!-- AI FAB -->
+    <button class="ai-fab" onclick="goTo('s-ai')">✨</button>
+    <!-- Sheet overlay -->
+    <div class="sheet-overlay" id="overlay" onclick="closeSheet()"></div>
+    <!-- Activity bottom sheet -->
+    <div class="bottom-sheet" id="activity-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-content">
+        <div class="badge-row"><span class="badge badge-cat" id="sheet-cat">sports</span><span class="badge badge-live"><span class="live-dot"></span>Live</span></div>
+        <h2 class="sheet-title" id="sheet-title">Football Game</h2>
+        <p class="sheet-desc" id="sheet-desc">Evening football at the grounds</p>
+        <div class="social-row">
+          <button class="social-item" id="like-btn" onclick="toggleLike()"><span id="like-icon">🤍</span><span id="like-count">12</span></button>
+          <div class="social-item"><span>👥</span><span>8/20</span></div>
+          <button class="social-item" style="margin-left:auto">📤 Share</button>
+        </div>
+        <div class="info-row"><div class="info-icon" id="sheet-time-icon">🕐</div><span class="info-text" id="sheet-time">Today 6:00 PM</span></div>
+        <div class="info-row"><div class="info-icon">📍</div><span class="info-text" id="sheet-loc">Besant Nagar Beach</span></div>
+        <div class="sheet-actions">
+          <button class="btn-join" id="join-btn" onclick="toggleJoin()">Join Activity →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="navTo('s-home',this)"><span class="nav-emoji">🗺️</span><span class="nav-label">HOME</span></button>
+    <button class="nav-item" onclick="navTo('s-explore',this)"><span class="nav-emoji">🔍</span><span class="nav-label">EXPLORE</span></button>
+    <button class="nav-create" onclick="navTo('s-create',null)">＋</button>
+    <button class="nav-item" onclick="navTo('s-chat-list',this)"><span class="nav-emoji">💬</span><span class="nav-label">CHAT</span></button>
+    <button class="nav-item" onclick="navTo('s-profile',this)"><span class="nav-emoji">👤</span><span class="nav-label">PROFILE</span></button>
+  </nav>
+</div>
+
+<!-- ══════════════ EXPLORE ══════════════ -->
+<div class="screen hidden" id="s-explore">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="page-header"><h1 class="page-title">Explore</h1><p class="page-sub">Discover activities around you</p></div>
+  <div class="search-bar"><span>🔍</span><input placeholder="Search activities..."/></div>
+  <div class="cat-scroll">
+    <button class="cat-chip active">🌐 All</button>
+    <button class="cat-chip">⚽ Sports</button>
+    <button class="cat-chip">🍕 Food</button>
+    <button class="cat-chip">📚 Study</button>
+    <button class="cat-chip">💪 Fitness</button>
+    <button class="cat-chip">🎮 Gaming</button>
+    <button class="cat-chip">🎵 Music</button>
+    <button class="cat-chip">✈️ Travel</button>
+  </div>
+  <div class="activity-list">
+    <div class="activity-card"><div class="card-emoji-wrap">⚽</div><div class="card-info"><div class="card-title">Evening Football Game</div><div class="card-meta">🟢 Happening now · Besant Nagar</div></div><span class="card-badge live-badge">Live</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">📚</div><div class="card-info"><div class="card-title">CAT Exam Study Group</div><div class="card-meta">🕐 Today 5 PM · British Council</div></div><span class="card-badge">Study</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">🍕</div><div class="card-info"><div class="card-title">Street Food Walk</div><div class="card-meta">🕐 Sat 7 PM · Pondy Bazaar</div></div><span class="card-badge">Food</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">💪</div><div class="card-info"><div class="card-title">5K Morning Run</div><div class="card-meta">🕐 Sun 6 AM · Nungambakkam</div></div><span class="card-badge">Fitness</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">🎮</div><div class="card-info"><div class="card-title">Gaming Night</div><div class="card-meta">🕐 Sat 8 PM · Velachery</div></div><span class="card-badge">Gaming</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">🎵</div><div class="card-info"><div class="card-title">Jam Session</div><div class="card-meta">🕐 Sun 4 PM · Mylapore</div></div><span class="card-badge">Music</span></div>
+    <div class="activity-card"><div class="card-emoji-wrap">🤝</div><div class="card-info"><div class="card-title">Founders Meetup</div><div class="card-meta">🕐 Mon 7 PM · Anna Nagar</div></div><span class="card-badge">Meetup</span></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="navTo('s-home',this)"><span class="nav-emoji">🗺️</span><span class="nav-label">HOME</span></button>
+    <button class="nav-item active" onclick="navTo('s-explore',this)"><span class="nav-emoji">🔍</span><span class="nav-label">EXPLORE</span></button>
+    <button class="nav-create" onclick="navTo('s-create',null)">＋</button>
+    <button class="nav-item" onclick="navTo('s-chat-list',this)"><span class="nav-emoji">💬</span><span class="nav-label">CHAT</span></button>
+    <button class="nav-item" onclick="navTo('s-profile',this)"><span class="nav-emoji">👤</span><span class="nav-label">PROFILE</span></button>
+  </nav>
+</div>
+
+<!-- ══════════════ CREATE ══════════════ -->
+<div class="screen hidden" id="s-create">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="create-header"><button class="back-btn" onclick="goBack()">←</button><h1 class="create-title">Create Activity</h1></div>
+  <div class="create-form">
+    <div><label class="form-label">CATEGORY</label><div class="cat-grid" id="cat-grid">
+      <button class="cat-chip active" onclick="selCat(this)">⚽ Sports</button>
+      <button class="cat-chip" onclick="selCat(this)">💪 Fitness</button>
+      <button class="cat-chip" onclick="selCat(this)">🎬 Movies</button>
+      <button class="cat-chip" onclick="selCat(this)">🍕 Food</button>
+      <button class="cat-chip" onclick="selCat(this)">🎵 Music</button>
+      <button class="cat-chip" onclick="selCat(this)">📚 Study</button>
+      <button class="cat-chip" onclick="selCat(this)">🎮 Gaming</button>
+      <button class="cat-chip" onclick="selCat(this)">🤝 Meetup</button>
+      <button class="cat-chip" onclick="selCat(this)">✈️ Travel</button>
+      <button class="cat-chip" onclick="selCat(this)">📍 Other</button>
+    </div></div>
+    <div><label class="form-label">ACTIVITY TITLE</label><input class="form-input" placeholder="e.g. Evening Basketball Game"/></div>
+    <div><label class="form-label">DESCRIPTION</label><textarea class="form-textarea" placeholder="Tell people what to expect..."></textarea></div>
+    <div><label class="form-label">📍 LOCATION</label><input class="form-input" placeholder="Address or landmark"/></div>
+    <div><label class="form-label">📅 DATE & TIME</label><input class="form-input" placeholder="e.g. 2026-04-15  18:30"/></div>
+    <div><label class="form-label">👥 MAX PARTICIPANTS</label><input class="form-input" placeholder="10" type="number"/></div>
+    <button class="btn-primary" onclick="goTo('s-home')">Create Activity →</button>
+  </div>
+</div>
+
+<!-- ══════════════ CHAT LIST ══════════════ -->
+<div class="screen hidden" id="s-chat-list">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="page-header"><h1 class="page-title">Chats</h1><p class="page-sub">Your activity conversations</p></div>
+  <div class="chat-list">
+    <div class="chat-item"><div class="chat-avatar">⚽</div><div class="chat-info"><div class="chat-name">Evening Football Game</div><div class="chat-preview">Riya: See you at 6! 👟</div></div><span class="chat-time">6:12 PM</span></div>
+    <div class="chat-item"><div class="chat-avatar">📚</div><div class="chat-info"><div class="chat-name">CAT Exam Study Group</div><div class="chat-preview">Arjun: Chapter 4 done ✅</div></div><span class="chat-time">4:30 PM</span></div>
+    <div class="chat-item"><div class="chat-avatar">🍕</div><div class="chat-info"><div class="chat-name">Street Food Walk</div><div class="chat-preview">Priya: What time exactly?</div></div><span class="chat-time">2:15 PM</span></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="navTo('s-home',this)"><span class="nav-emoji">🗺️</span><span class="nav-label">HOME</span></button>
+    <button class="nav-item" onclick="navTo('s-explore',this)"><span class="nav-emoji">🔍</span><span class="nav-label">EXPLORE</span></button>
+    <button class="nav-create" onclick="navTo('s-create',null)">＋</button>
+    <button class="nav-item active" onclick="navTo('s-chat-list',this)"><span class="nav-emoji">💬</span><span class="nav-label">CHAT</span></button>
+    <button class="nav-item" onclick="navTo('s-profile',this)"><span class="nav-emoji">👤</span><span class="nav-label">PROFILE</span></button>
+  </nav>
+</div>
+
+<!-- ══════════════ PROFILE ══════════════ -->
+<div class="screen hidden" id="s-profile">
+  <div class="status-bar white" style="position:absolute;top:0;left:0;right:0;z-index:2"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="profile-band"></div>
+  <div class="profile-body">
+    <div class="avatar-wrap">
+      <div class="avatar-img">K</div>
+      <div class="camera-badge">📷</div>
+      <h2 class="profile-name">Karthik</h2>
+      <p class="profile-email">karthik@example.com</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">7</div><div class="stat-lbl">Activities</div></div>
+      <div class="stat-box"><div class="stat-val">24</div><div class="stat-lbl">Followers</div></div>
+      <div class="stat-box"><div class="stat-val">18</div><div class="stat-lbl">Following</div></div>
+      <div class="stat-box"><div class="stat-val">❤️ 42</div><div class="stat-lbl">Likes</div></div>
+    </div>
+    <div class="section-label">ABOUT</div>
+    <div class="bio-box">Love football, food runs, and meeting new people. Based in Chennai 🟠</div>
+    <div class="section-label">INTERESTS</div>
+    <div class="interest-grid">
+      <span class="interest-chip active">Sports</span>
+      <span class="interest-chip active">Food</span>
+      <span class="interest-chip active">Gaming</span>
+      <span class="interest-chip">Fitness</span>
+      <span class="interest-chip active">Meetups</span>
+      <span class="interest-chip">Music</span>
+      <span class="interest-chip">Travel</span>
+      <span class="interest-chip">Study</span>
+    </div>
+    <button class="btn-outline">✏️ Edit Profile</button>
+  </div>
+  <nav class="bottom-nav" style="position:sticky;bottom:0">
+    <button class="nav-item" onclick="navTo('s-home',this)"><span class="nav-emoji">🗺️</span><span class="nav-label">HOME</span></button>
+    <button class="nav-item" onclick="navTo('s-explore',this)"><span class="nav-emoji">🔍</span><span class="nav-label">EXPLORE</span></button>
+    <button class="nav-create" onclick="navTo('s-create',null)">＋</button>
+    <button class="nav-item" onclick="navTo('s-chat-list',this)"><span class="nav-emoji">💬</span><span class="nav-label">CHAT</span></button>
+    <button class="nav-item active" onclick="navTo('s-profile',this)"><span class="nav-emoji">👤</span><span class="nav-label">PROFILE</span></button>
+  </nav>
+</div>
+
+<!-- ══════════════ AI SCREEN ══════════════ -->
+<div class="screen hidden" id="s-ai">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><span>▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="ai-header"><button class="back-btn" onclick="goBack()">←</button><div class="ai-icon">✨</div><div><div class="ai-name">Orange AI</div><div class="ai-sub">Your activity assistant</div></div></div>
+  <div class="ai-messages" id="ai-messages">
+    <div class="ai-empty" id="ai-empty">
+      <div class="ai-big-icon">✨</div>
+      <div class="ai-empty-title">Hey there! 👋</div>
+      <div class="ai-empty-sub">I'm Orange AI. Ask me about activities, events, or how to connect with people nearby.</div>
+      <button class="suggestion-btn" onclick="aiSuggest(this)">What activities are popular nearby? 🗺️</button>
+      <button class="suggestion-btn" onclick="aiSuggest(this)">Suggest something fun for this weekend 🎉</button>
+      <button class="suggestion-btn" onclick="aiSuggest(this)">How can I meet people with similar interests? 🤝</button>
+      <button class="suggestion-btn" onclick="aiSuggest(this)">Best activities for beginners 🌟</button>
+    </div>
+  </div>
+  <div class="ai-input-bar">
+    <input class="ai-input" id="ai-input" placeholder="Ask Orange AI..." onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="send-btn" onclick="sendAI()">↑</button>
+  </div>
+</div>
+
+</div><!-- end phone -->
+
+<script>
+// ── Navigation ──
+let prevScreen = null;
+const allNavItems = [];
+
+function goTo(id){
+  const cur = document.querySelector('.screen:not(.hidden)');
+  if(cur && cur.id !== id){
+    prevScreen = cur.id;
+    cur.classList.add('slide-left');
+    setTimeout(()=>cur.classList.add('hidden'),350);
+  }
+  const next = document.getElementById(id);
+  next.classList.remove('hidden','slide-left');
+  next.style.transform='translateX(30px)';next.style.opacity='0';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      next.style.transition='transform .35s cubic-bezier(.4,0,.2,1),opacity .35s ease';
+      next.style.transform='';next.style.opacity='';
+    });
+  });
+  closeSheet();
+}
+
+function goBack(){
+  if(prevScreen) goTo(prevScreen);
+  else goTo('s-home');
+}
+
+function navTo(id, btn){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  goTo(id);
+}
+
+// ── Onboarding ──
+let slideIdx=0;
+function onboardNext(){
+  if(slideIdx<2){
+    document.getElementById('slide-'+slideIdx).classList.remove('active');
+    document.getElementById('slide-'+slideIdx).classList.add('prev');
+    slideIdx++;
+    document.getElementById('slide-'+slideIdx).classList.add('active');
+    document.getElementById('d'+(slideIdx-1)).classList.remove('active');
+    document.getElementById('d'+slideIdx).classList.add('active');
+    if(slideIdx===2) document.getElementById('onboard-next-btn').textContent='Get started — it\'s free ✦';
+  } else {
+    goTo('s-auth');
+  }
+}
+
+// ── Auth tabs ──
+function authTab(mode){
+  document.getElementById('tab-signin').classList.toggle('active', mode==='signin');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('name-field').style.display = mode==='signup'?'block':'none';
+  document.getElementById('auth-btn').textContent = mode==='signin'?'Sign in →':'Create account →';
+}
+
+// ── Activity sheet ──
+let joined=false, liked=false;
+function openSheet(title,cat,emoji,desc,time,loc){
+  document.getElementById('sheet-title').textContent=title;
+  document.getElementById('sheet-cat').textContent=cat;
+  document.getElementById('sheet-desc').textContent=desc;
+  document.getElementById('sheet-time').textContent=time;
+  document.getElementById('sheet-loc').textContent=loc;
+  document.getElementById('join-btn').textContent='Join Activity →';
+  joined=false;liked=false;
+  document.getElementById('like-icon').textContent='🤍';
+  document.getElementById('like-count').textContent='12';
+  document.getElementById('activity-sheet').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSheet(){
+  document.getElementById('activity-sheet').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+function toggleJoin(){
+  joined=!joined;
+  const btn=document.getElementById('join-btn');
+  if(joined){
+    btn.innerHTML='<span style="flex:1;text-align:center" onclick="event.stopPropagation();goTo(\'s-chat-list\')">💬 Chat</span><span style="flex:1;text-align:center;border-left:1px solid rgba(255,255,255,0.3)" onclick="event.stopPropagation();toggleJoin()">Leave</span>';
+    btn.style.display='flex';btn.style.padding='0';btn.style.overflow='hidden';
+  } else {
+    btn.innerHTML='Join Activity →';btn.style.display='';btn.style.padding='';
+  }
+}
+function toggleLike(){
+  liked=!liked;
+  document.getElementById('like-icon').textContent=liked?'❤️':'🤍';
+  const c=parseInt(document.getElementById('like-count').textContent);
+  document.getElementById('like-count').textContent=liked?c+1:c-1;
+}
+
+// ── Category select (create) ──
+function selCat(btn){
+  document.querySelectorAll('#cat-grid .cat-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── AI chat ──
+const aiReplies = [
+  "Great question! 🟠 Right now near you in Chennai, the most popular activities are **Football at Besant Nagar Beach** (8 people going tonight!), a **CAT Study Group** at British Council, and a **Street Food Walk** at Pondy Bazaar this Saturday. Want me to help you join any of these?",
+  "This weekend looks 🔥! I'd suggest the **Street Food Walk** on Saturday evening at Pondy Bazaar — perfect for meeting people and exploring the city. Sunday morning has a **5K Run** at Nungambakkam that's great for fitness lovers. Which sounds more like your vibe?",
+  "The best way is to join activities that match your interests! I can see you're into **Sports** and **Food** — there are 3 people nearby who've also joined both categories. You could also create your own activity and let people discover you on the map! 🗺️",
+  "For beginners, I'd recommend starting with **Meetups** or **Food Walks** — they're social, low-pressure, and a great way to get comfortable. The **Founders Meetup** on Monday in Anna Nagar is perfect for a first-timer. Only 12 people, very friendly crowd! 👋"
+];
+let aiReplyIdx=0;
+
+function sendAI(){
+  const input=document.getElementById('ai-input');
+  const text=input.value.trim();
+  if(!text) return;
+  addAIMsg(text,'me');
+  input.value='';
+  document.getElementById('ai-empty').style.display='none';
+  // Typing indicator
+  const typing=document.createElement('div');
+  typing.className='msg-row';typing.id='typing';
+  typing.innerHTML='<div class="msg-avatar">✨</div><div class="bubble bot"><div class="typing"><span></span><span></span><span></span></div></div>';
+  document.getElementById('ai-messages').appendChild(typing);
+  scrollAI();
+  setTimeout(()=>{
+    typing.remove();
+    addAIMsg(aiReplies[aiReplyIdx%aiReplies.length],'bot');
+    aiReplyIdx++;
+    scrollAI();
+  },1400);
+}
+
+function aiSuggest(btn){
+  document.getElementById('ai-input').value=btn.textContent;
+  sendAI();
+}
+
+function addAIMsg(text,role){
+  const row=document.createElement('div');
+  row.className='msg-row'+(role==='me'?' me':'');
+  const avatar=role==='bot'?'<div class="msg-avatar">✨</div>':'';
+  row.innerHTML=avatar+'<div class="bubble '+role+'">'+text+'</div>';
+  document.getElementById('ai-messages').appendChild(row);
+  scrollAI();
+}
+
+function scrollAI(){
+  const m=document.getElementById('ai-messages');
+  setTimeout(()=>m.scrollTop=m.scrollHeight,50);
+}
+</script>
+</body>
+</html>
